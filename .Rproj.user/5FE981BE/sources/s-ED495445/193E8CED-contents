@@ -1,0 +1,251 @@
+library(shinydashboard)
+library(DT)
+library(shiny)
+library(dygraphs)
+setwd("c:/users/sean.hardison/documents/NEIEA_app")
+source("NEIEA_source_functions.R")
+ui <- fluidPage(
+  
+  dashboardPage(
+    dashboardHeader(title = "NEFSC Survey Trawl and Commercial Fisheries Data"),
+    dashboardSidebar(
+      sidebarMenu(
+        menuItem("Species-level Survey Data", tabName = "survey_ts", icon = icon("dashboard")),
+        menuItem("Aggregated Survey Data", tabName = "agg_survey_ts", icon = icon("dashboard")),
+        menuItem("Species-level Commercial Data", tabName = "comm_ts", icon = icon("dashboard")),
+        menuItem("Aggregated Commercial Data", tabName = "agg_comm_ts", icon = icon("dashboard"))
+      )
+    ),
+    dashboardBody(
+      tabItems(
+        tabItem(tabName = "survey_ts",
+                fluidRow(column(5,selectInput('survey_fields',"Data Fields",choices = survey_fields)),
+                         column(3,selectInput('EPU','EPU', choices = list("GOM","GB","MAB"), selected = "GOM")),
+                         column(3,selectInput('season','Season', choices = list("Fall","Spring"), selected = "Fall")),
+                         # column(12, align = "center",
+                         #        h4(textOutput("var_name"))),
+                         column(10,
+                                align = "center",
+                                offset = 1,
+                                dygraphOutput("survey_ts"))
+                         
+                ),
+                fluidRow(column(5,selectInput('survey_fields2',"Data Fields",choices = survey_fields)),
+                         column(3,selectInput('EPU2','EPU', choices = list("GOM","GB","MAB"), selected = "GOM")),
+                         column(3,selectInput('season2','Season', choices = list("Fall","Spring"), selected = "Fall")),
+                         # column(12, align = "center",
+                         #        h4(textOutput("var_name"))),
+                         column(10,
+                                align = "center",
+                                offset = 1,
+                                dygraphOutput("survey_ts2"))
+                         
+                )
+        ),
+        tabItem(tabName = "agg_survey_ts",
+                fluidRow(column(5,selectInput('agg_survey_fields',"Data Fields",choices = agg_survey_fields)),
+                         column(3,selectInput('EPU3','EPU', choices = list("GOM","GB","MAB"), selected = "GOM")),
+                         column(3,selectInput('season3','Season', choices = list("Fall","Spring"), selected = "Fall")),
+                         # column(12, align = "center",
+                         #        h4(textOutput("var_name"))),
+                         column(10,
+                                align = "center",
+                                offset = 1,
+                                dygraphOutput("agg_survey_ts"))
+                ),
+                fluidRow(column(5,selectInput('agg_survey_fields2',"Data Fields",choices = agg_survey_fields)),
+                         column(3,selectInput('EPU4','EPU', choices = list("GOM","GB","MAB"), selected = "GOM")),
+                         column(3,selectInput('season4','Season', choices = list("Fall","Spring"), selected = "Fall")),
+                         # column(12, align = "center",
+                         #        h4(textOutput("var_name"))),
+                         column(10,
+                                align = "center",
+                                offset = 1,
+                                dygraphOutput("agg_survey_ts2"))
+                )
+                ),
+                tabItem(tabName = "comm_ts",
+                        fluidRow(column(5,selectInput('comm_fields',"Data Fields",choices = survey_fields)),
+                                 column(3,selectInput('EPU5','EPU', choices = list("GOM","GB","MAB"), selected = "GOM")),
+                                 column(3,selectInput('comm_var','Variable', choices = list("USD","Metric tons (MT)"), selected = "Metric tons (MT)")),
+                                 # column(12, align = "center",
+                                 #        h4(textOutput("var_name"))),
+                                 column(10,
+                                        align = "center",
+                                        offset = 1,
+                                        dygraphOutput("comm_ts"))
+                        ),
+                        fluidRow(column(5,selectInput('comm_fields2',"Data Fields",choices = survey_fields)),
+                                 column(3,selectInput('EPU6','EPU', choices = list("GOM","GB","MAB"), selected = "GOM")),
+                                 column(3,selectInput('comm_var2','Variable', choices = list("USD","Metric tons (MT)"), selected = "Metric tons (MT)")),
+                                 # column(12, align = "center",
+                                 #        h4(textOutput("var_name"))),
+                                 column(10,
+                                        align = "center",
+                                        offset = 1,
+                                        dygraphOutput("comm_ts2"))
+                        )
+        ),
+        tabItem(tabName = "agg_comm_ts",
+                fluidRow(column(5,selectInput('agg_comm_fields',"Data Fields",choices = agg_survey_fields)),
+                         column(3,selectInput('EPU7','EPU', choices = list("GOM","GB","MAB"), selected = "GOM")),
+                         column(3,selectInput('agg_comm_var','Variable', choices = list("USD","Metric tons (MT)"), selected = "Metric tons (MT)")),
+                         column(10,
+                                align = "center",
+                                offset = 1,
+                                dygraphOutput("agg_comm_ts"))
+                ),
+                fluidRow(column(5,selectInput('agg_comm_fields2',"Data Fields",choices = agg_survey_fields)),
+                         column(3,selectInput('EPU8','EPU', choices = list("GOM","GB","MAB"), selected = "GOM")),
+                         column(3,selectInput('agg_comm_var2','Variable', choices = list("USD","Metric tons (MT)"), selected = "Metric tons (MT)")),
+                         column(10,
+                                align = "center",
+                                offset = 1,
+                                dygraphOutput("agg_comm_ts2"))
+                )
+        )
+      )
+
+      )
+    )
+  )
+
+
+
+
+
+
+server <- function(input, output) {
+  output$var_name <- renderText({
+    input$survey_fields
+  })
+
+  output$survey_ts <- renderDygraph({
+    neiea_vis(dat = survey_biomass, 
+              agg = F, var = input$survey_fields, surv_season = input$season,
+              epu = input$EPU)
+  })
+  output$survey_ts2 <- renderDygraph({
+    neiea_vis(dat = survey_biomass, 
+              agg = F, var = input$survey_fields2, surv_season = input$season2,
+              epu = input$EPU2)
+  })
+  
+  # datasetInput <- reactive({
+  #   switch(input$agg_survey_fields,
+  #          "Benthos" = benthos,
+  #          "Elasmobranchs" = elasmobranchs,
+  #          "Fished invertebrates" = fishedInvert,
+  #          "Forage fish" = foragefish,
+  #          "Groundfish" = groundfish,
+  #          "Groundfish (MAB)" = mab.groundfish,
+  #          "Medium pelagics" = med.pelagics,
+  #          "Sharks and rays" = sharks_and_rays,
+  #          "Other" = other)
+  # })
+
+  output$agg_survey_ts <- renderDygraph({
+    neiea_vis(dat = survey_biomass, 
+              agg = T, var = input$agg_survey_fields, surv_season = input$season3,
+              epu = input$EPU3)
+  })
+  
+  output$agg_survey_ts2 <- renderDygraph({
+    neiea_vis(dat = survey_biomass, 
+              agg = T, var = input$agg_survey_fields2, surv_season = input$season4,
+              epu = input$EPU4)
+  })
+  
+  output$comm_ts <- renderDygraph({
+    if (input$comm_var == "Metric tons (MT)"){
+      neiea_vis(dat = neiea_comm_landings, 
+                agg = F, var = input$comm_fields, comm = T,
+                epu = input$EPU5)
+      
+    } else if (input$comm_var == "USD"){
+      neiea_vis(dat = neiea_comm_landings, 
+                agg = F, var = input$comm_fields, comm = T,
+                USD = T,
+                epu = input$EPU5)
+    }
+  })
+  
+  
+  output$comm_ts2 <- renderDygraph({
+    if (input$comm_var2 == "Metric tons (MT)"){
+      neiea_vis(dat = neiea_comm_landings, 
+                agg = F, var = input$comm_fields2, comm = T,
+                epu = input$EPU6)
+      
+    } else if (input$comm_var2 == "USD"){
+      neiea_vis(dat = neiea_comm_landings, 
+                agg = F, var = input$comm_fields2, comm = T,
+                USD = T,
+                epu = input$EPU6)
+    }
+      })
+  
+  output$agg_comm_ts <- renderDygraph({
+    if (input$agg_comm_var == "Metric tons (MT)"){
+      neiea_vis(dat = neiea_comm_landings, 
+                agg = T, var = input$agg_comm_fields, comm = T,
+                epu = input$EPU7)
+      
+    } else if (input$agg_comm_var == "USD"){
+      neiea_vis(dat = neiea_comm_landings, 
+                agg = T, var = input$agg_comm_fields, comm = T,
+                USD = T,
+                epu = input$EPU7)
+    }
+  })
+  
+  
+  
+  output$agg_comm_ts2 <- renderDygraph({
+    if (input$agg_comm_var2 == "Metric tons (MT)"){
+      neiea_vis(dat = neiea_comm_landings, 
+                agg = T, var = input$agg_comm_fields2, comm = T,
+                epu = input$EPU8)
+      
+    } else if (input$agg_comm_var2 == "USD"){
+      neiea_vis(dat = neiea_comm_landings, 
+                agg = T, var = input$agg_comm_fields2, comm = T,
+                USD = T,
+                epu = input$EPU8)
+    }
+  })  
+  # datasetInput2 <- reactive({
+  #   switch(input$agg_survey_fields,
+  #          "Benthos" = benthos,
+  #          "Elasmobranchs" = elasmobranchs,
+  #          "Fished invertebrates" = fishedInvert,
+  #          "Forage fish" = forageFish,
+  #          "Groundfish" = groundfish,
+  #          "Groundfish (MAB)" = mab.groundfish,
+  #          "Medium pelagics" = med.pelagics,
+  #          "Sharks and rays" = sharks_and_rays)
+  # })
+  # output$agg_survey_ts2 <- renderDygraph({
+  #   neiea_vis(dat = survey_biomass, 
+  #             agg = T, var = datasetInput2(), surv_season = input$season2,
+  #             epu = input$EPU2)
+  # })
+
+  # output$field_table <- renderDataTable({
+  #   datatable(ndf, options = list(autoWidth = FALSE,
+  #                                 rowCallback = JS(
+  #                                   'function(row, data) {',
+  #                                   '$("td", row).each(function(i) {',
+  #                                   'if (i == 0) return; // first column is row names',
+  #                                   'if (parseFloat(data[i]) <= .05)',
+  #                                   '$(this).css("color", "red");',
+  #                                   '});',
+  #                                   '}')
+  #   ))
+  # })
+}
+
+# Run the application 
+shinyApp(ui = ui, server = server)
+
+
