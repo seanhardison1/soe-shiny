@@ -1,8 +1,8 @@
-#load_data
-
+# Code to prepare data for Indicator Visualization App. Should not be run by app.
+library(dplyr)
 
 # Data directory
-clean.dir <- here("data")
+clean.dir <- here::here("data")
 
 # Load all
 invisible(lapply(file.path(clean.dir,as.list(list.files(clean.dir))),load,environment()))
@@ -16,8 +16,8 @@ for (i in names(as.list(.GlobalEnv))){
 }
 
 #NAO data is already normalized - remove it
-nao <- soe %>% filter(Var == "nao index") %>% select(-Units)
-soe <- soe %>% filter(Var != "nao index")
+nao <- soe %>% dplyr::filter(Var == "nao index") %>% select(-Units)
+soe <- soe %>% dplyr::filter(Var != "nao index")
 
 # Get variable names
 var_ids <- sort(as.factor(na.omit(unique(soe$Var))))
@@ -31,8 +31,8 @@ get_dat <- function(field){
   out <- NULL
   for (i in unique(group$EPU)){
     
-    Value <- group %>% filter(EPU == i) %>% pull(Value)
-    Time <- group %>% filter(EPU == i) %>% pull(Time)
+    Value <- group %>% dplyr::filter(EPU == i) %>% dplyr::pull(Value)
+    Time <- group %>% dplyr::filter(EPU == i) %>% dplyr::pull(Time)
     
     if (all(is.na(as.numeric(Value))) | sd(Value, na.rm = T) == 0){
       Value <- NA #Assign as NA if not including
@@ -47,13 +47,13 @@ get_dat <- function(field){
       }
       
       #test for stationarity with Augmented Dickey Fuller
-      adf <- suppressWarnings(adf.test(Value)$p.value)
+      adf <- suppressWarnings(tseries::adf.test(Value)$p.value)
       
       if (adf > 0.05){ #if non-stationary take first difference and use residuals
         mod <- arima(Value, order = c(0,1,0))
         Value <- resid(mod)
         
-        adf2 <- suppressWarnings(adf.test(Value)$p.value) #check again for stationarity
+        adf2 <- suppressWarnings(tseries::adf.test(Value)$p.value) #check again for stationarity
         if (adf2 > 0.05){
           Value <- NA #if still non-stationary, make NA for exclusion
           
@@ -79,26 +79,4 @@ soe <- soe %>%
   do.call(rbind,.) %>% #list to df
   rbind(., nao) #Bind in NAO again
 
-# Get normalized variable names
-
-
-#App selection parameters
-var_ids <- sort(unique(soe[!is.na(soe$Value),]$Var))
-epu_ids <- c("all","GOM","GB","MAB")
-
-
-#Function for lagging series
-lag_series <- function(df, k) {
-  
-  series <- df$Value
-  
-  if (k>0) { #If lag > 0, add NA to vector; trim end to keep length constant
-    out <- c(rep(NA, k), series)[1 : length(series)] 
-  }
-  else { #If k < 0, c() NAs to end of vector to pad; start vec at -k+1 
-    out <- c(series[(-k+1) : length(series)], rep(NA, -k))
-  }
-  
-  df$Value <- out #Replace value column in og df
-  return(df)
-}
+save(soe, file = file.path(clean.dir,"soe_clean_2019.Rdata"))

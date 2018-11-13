@@ -1,11 +1,13 @@
 ---
 title: "Visualizing SOE Indicators"
-output: 
+resource_files:
+- data/soe_clean_2019.Rdata
+runtime: shiny
+output:
   flexdashboard::flex_dashboard:
     orientation: rows
-    vertical_layout: fill
     theme: lumen
-runtime: shiny
+    vertical_layout: fill
 ---
 
 ```{r setup, include=FALSE}
@@ -20,12 +22,14 @@ library(dplyr)
 library(plotly)
 library(heatmaply)
 
-source("load_data.R")
+source("load_data-02.R")
+#source("module_functions-03.R")
 ```
 
 Inputs {.sidebar}
 -----------------------------------------------------------------------
 ```{r}
+
 selectInput("Var",
             label = "Variable",
             choices = var_ids,
@@ -38,6 +42,8 @@ selectizeInput("EPU",
             choices = epu_ids,
             selected = epu_ids[1],
             multiple = TRUE)
+#inputUI("EPU")
+#inputUI("Var")
 
 selectInput("Var_lag",
             label = "Lagged Variable",
@@ -69,7 +75,7 @@ out <- reactive({
         group_by(Var, EPU) %>%
         mutate(count = n()) %>%
         ungroup() %>%
-        filter(count >= 10,
+        dplyr::filter(count >= 10,
                !str_detect(Var,"reference"),
                !is.na(Value)) %>%
         tidyr::unite(., Var, Var = c("Var","EPU"), sep = " ")
@@ -93,7 +99,7 @@ out_lag <- reactive({
           do(lag_series(., k = input$lag)) %>%
           ungroup() %>%
           mutate(Var = paste(.$Var,"lag",input$lag)) %>%
-          filter(count >= 10,
+          dplyr::filter(count >= 10,
                  !str_detect(Var,"reference")) %>%
           tidyr::unite(., Var, Var = c("Var","EPU"), sep = " ")
         
