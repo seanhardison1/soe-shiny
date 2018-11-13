@@ -1,0 +1,13 @@
+name: soe-shiny
+title: soe-shiny
+username:
+account: seanhardison
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 568846
+bundleId: 1699094
+url: https://seanhardison.shinyapps.io/soe-shiny/
+when: 1542140853.45177
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .RData|IndVis_Rmd.Rmd|module_functions-03.R|prep_data-01.R|shiny_in_rmd

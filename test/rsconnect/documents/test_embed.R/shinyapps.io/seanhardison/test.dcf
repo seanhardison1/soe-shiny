@@ -1,0 +1,13 @@
+name: test
+title: test
+username:
+account: seanhardison
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 568953
+bundleId: 1699111
+url: https://seanhardison.shinyapps.io/test/
+when: 1542141201.03077
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: app.R

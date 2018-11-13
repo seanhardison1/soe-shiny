@@ -1,0 +1,13 @@
+name: Indicator_processing_and_analyses
+title: Indicator_processing_and_analyses
+username:
+account: seanhardison
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 568391
+bundleId: 1698723
+url: https://seanhardison.shinyapps.io/Indicator_processing_and_analyses/
+when: 1542128411.8665
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: gis
