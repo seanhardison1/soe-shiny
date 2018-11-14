@@ -9,57 +9,62 @@ library(dplyr)
 library(plotly)
 library(heatmaply)
 library(shiny)
+library(miniUI)
 
 source("load_data-02.R")
 
-ui <- fluidPage(
+ui <- miniPage(
+                 
+  miniTabstripPanel(
+    miniTabPanel("Variable Selection", icon = icon("sliders"),
+      fillRow(
+        fillCol(
+          selectInput("Var",
+                      label = "Variable",
+                      choices = var_ids,
+                      selected = var_ids[1],
+                      selectize = TRUE,
+                      multiple = TRUE),
+        
+          selectizeInput("EPU",
+                         label = "EPU",
+                         choices = epu_ids,
+                         selected = epu_ids[1],
+                         multiple = TRUE)
+          ),
+        fillCol(
+          selectInput("Var_lag",
+                      label = "Lagged Variable",
+                      selected = "",
+                      choices = c("",as.character(var_ids))),
+          selectInput("EPU_lag",
+                      label = "Lagged Variable EPU",
+                      selected = "",
+                      choices = c("",as.character(epu_ids))),
   
-  tags$head(
-    tags$script(src="https://cdnjs.cloudflare.com/ajax/libs/iframe-resizer/3.5.16/iframeResizer.contentWindow.min.js",
-                type="text/javascript")
-  ),
-  
-   fluidRow(
-      column(4,wellPanel(
-        selectInput("Var",
-                    label = "Variable",
-                    choices = var_ids,
-                    selected = var_ids[1],
-                    selectize = TRUE,
-                    multiple = TRUE))),
-      column(4,wellPanel(
-        selectizeInput("EPU",
-                       label = "EPU",
-                       choices = epu_ids,
-                       selected = epu_ids[1],
-                       multiple = TRUE))),
-      column(4,wellPanel(
-        selectInput("Var_lag",
-                    label = "Lagged Variable",
-                    selected = "",
-                    choices = c("",as.character(var_ids))))),
-      column(4,wellPanel(
-        selectInput("EPU_lag",
-                    label = "Lagged Variable EPU",
-                    selected = "",
-                    choices = c("",as.character(epu_ids))))),
-      column(4, wellPanel( 
-        numericInput('lag', 'Series lag', value = 0,
-                     min = -3, max = 3, step = 1)))
-      ),
-      
-      # Show a plot of the generated distribution
-      fluidRow(
-        div(
-           plotlyOutput("normseries", width  = "75%"),
-           plotlyOutput("heatplot", width  = "75%"),
-           align = "center"
+          numericInput('lag', 'Series lag', value = 0,
+                       min = -3, max = 3, step = 1)
+          )
         )
       ),
-  HTML('<div data-iframe-height></div>')
-   )
+    miniTabPanel("Normalized Series", icon = icon("sliders"),
+      miniContentPanel(padding = 0,
+       fillCol(
+         plotlyOutput("normseries", height  = "100%")
+              )
+            )
+          ),
+    miniTabPanel("Correlation Matrix", icon = icon("sliders"),
+                 miniContentPanel(padding = 0,
+                                  fillCol(
+                                    plotlyOutput("heatplot", height  = "100%")
+              )
+            )
+          )
+        )
+      )
 
-# Define server logic required to draw a histogram
+# Define server logic 
 server <- function(input, output) {
    
   out <- reactive({
@@ -75,10 +80,8 @@ server <- function(input, output) {
                     !str_detect(Var,"reference"),
                     !is.na(Value)) %>%
       tidyr::unite(., Var, Var = c("Var","EPU"), sep = " ")
-    
-    
+
   })
-  
   
   out_lag <- reactive({
     
@@ -98,7 +101,6 @@ server <- function(input, output) {
       dplyr::filter(count >= 10,
                     !str_detect(Var,"reference")) %>%
       tidyr::unite(., Var, Var = c("Var","EPU"), sep = " ")
-    
     
   })
   
@@ -136,7 +138,6 @@ server <- function(input, output) {
 
    })
 
-
    output$heatplot <- renderPlotly({
 
        heatmaply(out_corr(),
@@ -144,7 +145,6 @@ server <- function(input, output) {
                  scale_fill_gradient_fun = ggplot2::scale_fill_gradient2(trans = "reverse"),
                  dendrogram = 'none',
                  hide_colorbar = TRUE)
-
    })
 }
 

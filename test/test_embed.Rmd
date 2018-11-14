@@ -1,0 +1,13 @@
+---
+title: "test"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r test-embed}
+knitr::include_app("https://seanhardison.shinyapps.io/soe-shiny/", height = "500px")
+```
+
