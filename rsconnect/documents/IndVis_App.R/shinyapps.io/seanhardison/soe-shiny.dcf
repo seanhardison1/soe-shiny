@@ -5,9 +5,9 @@ account: seanhardison
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 568846
-bundleId: 1700605
+bundleId: 1773091
 url: https://seanhardison.shinyapps.io/soe-shiny/
-when: 1542206518.73629
+when: 1545224376.59645
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: .RData|IndVis_Rmd.Rmd|module_functions-03.R|prep_data-01.R|test/app.R|test/test_embed.html|test/test_embed.R|test/test_embed.Rmd|test/rsconnect/documents/test_embed.R/shinyapps.io/seanhardison/test.dcf|shiny_in_rmd
+ignoredFiles: .RData|IndVis_Rmd.Rmd|messy-prep.R|module_functions-03.R|prep_data-01.R|test/app.R|test/test_embed.html|test/test_embed.R|test/test_embed.Rmd|test/rsconnect/documents/test_embed.R/shinyapps.io/seanhardison/test.dcf|shiny_in_rmd

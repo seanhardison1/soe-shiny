@@ -13,56 +13,57 @@ library(miniUI)
 
 source("load_data-02.R")
 
-ui <- miniPage(
-                 
-  miniTabstripPanel(
-    miniTabPanel("Variable Selection", icon = icon("sliders"),
-      fillRow(
-        fillCol(
-          selectInput("Var",
-                      label = "Variable",
-                      choices = var_ids,
-                      selected = var_ids[1],
-                      selectize = TRUE,
-                      multiple = TRUE),
-        
-          selectizeInput("EPU",
-                         label = "EPU",
-                         choices = epu_ids,
-                         selected = epu_ids[1],
-                         multiple = TRUE)
-          ),
-        fillCol(
-          selectInput("Var_lag",
-                      label = "Lagged Variable",
-                      selected = "",
-                      choices = c("",as.character(var_ids))),
-          selectInput("EPU_lag",
-                      label = "Lagged Variable EPU",
-                      selected = "",
-                      choices = c("",as.character(epu_ids))),
+# Define UI for random distribution app ----
+ui <- fluidPage(
   
-          numericInput('lag', 'Series lag', value = 0,
-                       min = -3, max = 3, step = 1)
-          )
-        )
-      ),
-    miniTabPanel("Normalized Series", icon = icon("sliders"),
-      miniContentPanel(padding = 0,
-       fillCol(
-         plotlyOutput("normseries", height  = "100%")
-              )
-            )
-          ),
-    miniTabPanel("Correlation Matrix", icon = icon("sliders"),
-                 miniContentPanel(padding = 0,
-                                  fillCol(
-                                    plotlyOutput("heatplot", height  = "100%")
-              )
-            )
-          )
-        )
+  # App title ----
+  titlePanel("Tabsets"),
+  
+  # Sidebar layout with input and output definitions ----
+  sidebarLayout(
+    
+    # Sidebar panel for inputs ----
+    sidebarPanel(
+      
+      selectInput("Var",
+                  label = "Variable",
+                  choices = var_ids,
+                  selected = var_ids[1],
+                  selectize = TRUE,
+                  multiple = TRUE),
+      
+      selectizeInput("EPU",
+                     label = "EPU",
+                     choices = epu_ids,
+                     selected = epu_ids[1],
+                     multiple = TRUE),
+      selectInput("Var_lag",
+                  label = "Lagged Variable",
+                  selected = "",
+                  choices = c("",as.character(var_ids)),
+                  multiple = TRUE),
+      selectInput("EPU_lag",
+                  label = "Lagged Variable EPU",
+                  selected = "",
+                  choices = c("",as.character(epu_ids))),
+      
+      numericInput('lag', 'Series lag',value = 0,
+                   min = -3, max = 3, step = 1)
+      
+    ),
+    
+    # Main panel for displaying outputs ----
+    mainPanel(
+      
+      # Output: Tabset w/ plot, summary, and table ----
+      tabsetPanel(type = "tabs",
+                  tabPanel("Normalized Series",plotlyOutput("normseries", height  = "100%")),
+                  tabPanel("Correlation Matrix",plotlyOutput("heatplot", height  = "100%"))
       )
+      
+    )
+  )
+)
 
 # Define server logic 
 server <- function(input, output) {
@@ -125,12 +126,13 @@ server <- function(input, output) {
      }
 
      env_wide <- int_corr %>%
-       dplyr::select(-count) %>%
+       dplyr::select(-count) %>% 
        tidyr::spread(., Var, Value) %>%
        dplyr::select(-Time)
-
+     
+     
      env_wide <- env_wide[complete.cases(env_wide),]
-
+     
      #Find correlation matrix and order by magnitude of first principal component
      env_cor <- cor(env_wide)
      env_order <- corrMatOrder(env_cor, order = "FPC")
